@@ -46,7 +46,7 @@ export function validateManifest(manifest, expectedPublicKey) {
 const escape=(s)=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]))
 export function releaseNotesHtml(version, notes) {
   parseVersion(version)
-  return `<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>JobPilot ${version}</title><body><h1>JobPilot ${version}</h1><pre style="white-space:pre-wrap;font-family:system-ui">${escape(notes)}</pre></body></html>`
+  return `<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>全职高手 ${version}</title><body><h1>全职高手 ${version}</h1><pre style="white-space:pre-wrap;font-family:system-ui">${escape(notes)}</pre></body></html>`
 }
 export function appcast(manifest,arch,notes='') {
   validateManifest(manifest,manifest.publicKey)
@@ -54,5 +54,5 @@ export function appcast(manifest,arch,notes='') {
   if(!item)throw new Error('Missing architecture.')
   const url=`https://github.com/${releaseRepo}/releases/download/v${manifest.version}/${item.zip.name}`
   const notesUrl=`https://tamaka365.github.io/job-pilot/updates/mac/${arch}/notes-${manifest.version}.html`
-  return `<?xml version="1.0" encoding="utf-8"?>\n<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"><channel><title>JobPilot macOS ${arch}</title><item><title>JobPilot ${manifest.version}</title><description>${escape(notes)}</description><sparkle:releaseNotesLink>${notesUrl}</sparkle:releaseNotesLink><sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion><enclosure url="${escape(url)}" sparkle:version="${manifest.version}" sparkle:shortVersionString="${manifest.version}" sparkle:edSignature="${escape(item.zip.signature)}" length="${item.zip.length}" type="application/octet-stream" /></item></channel></rss>\n`
+  return `<?xml version="1.0" encoding="utf-8"?>\n<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"><channel><title>全职高手 macOS ${arch}</title><item><title>全职高手 ${manifest.version}</title><description>${escape(notes)}</description><sparkle:releaseNotesLink>${notesUrl}</sparkle:releaseNotesLink><sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion><enclosure url="${escape(url)}" sparkle:version="${manifest.version}" sparkle:shortVersionString="${manifest.version}" sparkle:edSignature="${escape(item.zip.signature)}" length="${item.zip.length}" type="application/octet-stream" /></item></channel></rss>\n`
 }

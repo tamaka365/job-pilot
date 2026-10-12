@@ -35,10 +35,10 @@ for(const arch of releaseArchitectures) {
   else if(existing.status!==404)throw new Error(`无法确认旧清单 ${existing.status}，拒绝覆盖。`)
   const path=join('site','updates','mac',arch)
   await mkdir(path,{recursive:true})
-  await writeFile(join(path,'appcast.xml'),appcast(manifest,arch,release.body || `JobPilot ${version}`))
-  await writeFile(join(path,`notes-${version}.html`),releaseNotesHtml(version,release.body || `JobPilot ${version}`))
+  await writeFile(join(path,'appcast.xml'),appcast(manifest,arch,release.body || `全职高手 ${version}`))
+  await writeFile(join(path,`notes-${version}.html`),releaseNotesHtml(version,release.body || `全职高手 ${version}`))
 }
-await writeFile('site/index.html',`<!doctype html><meta charset="utf-8"><title>JobPilot</title><h1>JobPilot ${version}</h1><p>安装包与版本说明：<a href="https://github.com/${releaseRepo}/releases">GitHub Releases</a></p>`)
+await writeFile('site/index.html',`<!doctype html><meta charset="utf-8"><title>全职高手</title><h1>全职高手 ${version}</h1><p>安装包与版本说明：<a href="https://github.com/${releaseRepo}/releases">GitHub Releases</a></p>`)
 await writeFile('site/.nojekyll','')
 if(process.env.GITHUB_OUTPUT)await appendFile(process.env.GITHUB_OUTPUT,`version=${version}\n`)
 console.log(`已验证并生成 ${version} 稳定更新清单。`)
