@@ -13,6 +13,8 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.feed.outputs.version }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -21,7 +23,9 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
+          package-manager-cache: false
       - run: node scripts/build-feed.mjs
+        id: feed
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SPARKLE_PUBLIC_ED_KEY: ${{ vars.SPARKLE_PUBLIC_ED_KEY }}
@@ -31,3 +35,19 @@ jobs:
           path: site
       - uses: actions/deploy-pages@v5
         id: deployment
+  cleanup:
+    needs: deploy
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          package-manager-cache: false
+      - name: Keep the latest two stable releases
+        run: node scripts/cleanup-releases.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEPLOYED_VERSION: ${{ needs.deploy.outputs.version }}

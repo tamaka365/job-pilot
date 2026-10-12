@@ -1,6 +1,7 @@
 import { createHash, createPrivateKey, createPublicKey, sign, verify } from 'node:crypto'
 
 export const releaseRepo = 'tamaka365/job-pilot'
+export const releaseArchitectures = ['arm64']
 export function parseVersion(value) {
   if (!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(value)) throw new Error('版本号必须是稳定的 major.minor.patch。')
   return value.split('.').map(BigInt)
@@ -29,14 +30,14 @@ export function verifyArchive(bytes, signature, publicKey) {
 }
 export function artifactNames(version,arch) {
   parseVersion(version)
-  if(!['arm64','x64'].includes(arch)) throw new Error('Unsupported architecture.')
+  if(!releaseArchitectures.includes(arch)) throw new Error('Unsupported architecture.')
   const prefix=`job-pilot-${version}-mac-${arch}`
   return {zip:`${prefix}.zip`,dmg:`${prefix}.dmg`}
 }
 export function validateManifest(manifest, expectedPublicKey) {
   parseVersion(manifest.version)
   if(manifest.schemaVersion!==1 || manifest.publicKey!==expectedPublicKey || !/^[a-f0-9]{40}$/.test(manifest.sourceCommit)) throw new Error('发布清单身份不正确。')
-  if(manifest.archives.length!==2 || new Set(manifest.archives.map(a=>a.arch)).size!==2) throw new Error('发布清单缺少架构。')
+  if(!Array.isArray(manifest.archives) || manifest.archives.length!==1 || manifest.archives[0].arch!=='arm64') throw new Error('发布清单必须仅包含 arm64 架构。')
   for(const entry of manifest.archives) {
     const names=artifactNames(manifest.version,entry.arch)
     if(entry.zip.name!==names.zip || entry.dmg.name!==names.dmg || !Number.isSafeInteger(entry.zip.length) || entry.zip.length<=0 || !Number.isSafeInteger(entry.dmg.length) || entry.dmg.length<=0 || !/^[a-f0-9]{64}$/.test(entry.zip.sha256) || !/^[a-f0-9]{64}$/.test(entry.dmg.sha256) || Buffer.from(entry.zip.signature,'base64').length!==64) throw new Error('发布文件清单无效。')

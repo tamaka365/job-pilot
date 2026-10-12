@@ -1,6 +1,6 @@
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, writeFile, appendFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import { parseVersion, compareVersion, validateManifest, verifyArchive, hash, appcast, releaseNotesHtml, releaseRepo } from './release-core.mjs'
+import { releaseArchitectures, parseVersion, compareVersion, validateManifest, verifyArchive, hash, appcast, releaseNotesHtml, releaseRepo } from './release-core.mjs'
 const token=process.env.GITHUB_TOKEN
 const publicKey=process.env.SPARKLE_PUBLIC_ED_KEY
 if(!publicKey)throw new Error('公开发布仓库缺少 SPARKLE_PUBLIC_ED_KEY variable。')
@@ -29,7 +29,7 @@ for(const entry of manifest.archives)for(const kind of ['zip','dmg']) {
   if(bytes.length!==info.length || hash(bytes)!==info.sha256)throw new Error('发布文件校验失败。')
   if(kind==='zip')verifyArchive(bytes,info.signature,publicKey)
 }
-for(const arch of ['arm64','x64']) {
+for(const arch of releaseArchitectures) {
   const existing=await fetch(`https://tamaka365.github.io/job-pilot/updates/mac/${arch}/appcast.xml`,{cache:'no-store'})
   if(existing.ok){const old=(await existing.text()).match(/sparkle:version="([^"]+)"/);if(old&&compareVersion(old[1],version)>0)throw new Error('禁止稳定清单回退。')}
   else if(existing.status!==404)throw new Error(`无法确认旧清单 ${existing.status}，拒绝覆盖。`)
@@ -40,4 +40,5 @@ for(const arch of ['arm64','x64']) {
 }
 await writeFile('site/index.html',`<!doctype html><meta charset="utf-8"><title>JobPilot</title><h1>JobPilot ${version}</h1><p>安装包与版本说明：<a href="https://github.com/${releaseRepo}/releases">GitHub Releases</a></p>`)
 await writeFile('site/.nojekyll','')
+if(process.env.GITHUB_OUTPUT)await appendFile(process.env.GITHUB_OUTPUT,`version=${version}\n`)
 console.log(`已验证并生成 ${version} 稳定更新清单。`)
