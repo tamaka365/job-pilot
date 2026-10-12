@@ -2,6 +2,11 @@
 
 记录全职高手的主要变化，按代码版本从新到旧排列，并按 Git commit 类型分类。代码提交不等于正式发布；可下载版本以 [GitHub Releases](https://github.com/tamaka365/job-pilot/releases) 为准。
 
+## 1.0.12
+
+- **【feat】** macOS 系统菜单新增“检查更新…”入口，直接调用手动更新检测。
+- **【fix】** 自动更新检测间隔从默认 24 小时缩短为 1 小时。
+
 ## 1.0.11
 
 - **【fix】** Agent CLI 统一使用用户登录 Shell 的 PATH，修复安装版找不到 CLI 命令及 WorkBuddy 无法启动 Node 的问题，模型查询、检测与业务调用保持一致。
